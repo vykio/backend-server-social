@@ -46,12 +46,13 @@ router.post('/signup', (req, res, next) => {
                 //user already exists
                 //res.status(409);
                 const error = new Error("Taken !");
+                res.status(409);
                 next(error);
             } else {
                 console.log("--> user doesnt exists function");
                 // hash the password
                 // insert user into db
-                bcrypt.hash(req.body.password, 12)
+                bcrypt.hash(req.body.password.trim(), 12)
                     .then(hashedPassword => {
                         const newUser = {
                             username: req.body.username,
@@ -59,8 +60,11 @@ router.post('/signup', (req, res, next) => {
                         }
 
                         users.insert(newUser).then(insertedUser => {
-                            delete insertedUser.password;
-                            res.json(insertedUser);
+                            //delete insertedUser.password;
+                            res.json({
+                                _id : insertedUser._id,
+                                username : insertedUser.username
+                            });
                         });
                     });
 
@@ -71,7 +75,7 @@ router.post('/signup', (req, res, next) => {
         });
     } else {
         console.log("--> else function");
-        //res.status(422);
+        res.status(422);
         next(result.error);
     }
 
